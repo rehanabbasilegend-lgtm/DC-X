@@ -1,0 +1,92 @@
+#!/bin/bash
+
+# ============================================
+# TOOL: Num PassGen
+# AUTHOR: RehanX
+# TYPE: Professional Password Generator
+# ============================================
+
+# Colors
+RED='\033[1;31m'
+GREEN='\033[1;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[1;34m'
+CYAN='\033[1;36m'
+WHITE='\033[1;37m'
+NC='\033[0m' # No Color
+
+# Function to generate 8 character numeric + letters password
+generate_num_pass() {
+    # First 4 characters: letters (random a-z)
+    LETTERS=$(cat /dev/urandom | tr -dc 'a-z' | head -c 4)
+    # Last 4 characters: numbers (random 0-9)
+    NUMBERS=$(cat /dev/urandom | tr -dc '0-9' | head -c 4)
+    # Combine
+    echo "${LETTERS}${NUMBERS}"
+}
+
+# Function to show loading animation
+fake_loading() {
+    echo -ne "${CYAN}"
+    for i in {1..4}; do
+        echo -ne "█"
+        sleep 0.5
+    done
+    echo -e "${NC}"
+}
+
+# Main function
+main() {
+    while true; do
+        clear
+        
+        # Big Banner Box
+        echo -e "${CYAN}╔════════════════════════════════════════════════════════════╗${NC}"
+        echo -e "${CYELLOW}║                    🔐 HACK BY REHAN X 🔐                     ║${NC}"
+        echo -e "${CYAN}╠════════════════════════════════════════════════════════════╣${NC}"
+        echo -e "${CYAN}║${NC}                                                          ${CYAN}║${NC}"
+        echo -e "${CYAN}║${NC}                    ${WHITE}📁 NUM PASSGEN 📁${NC}                       ${CYAN}║${NC}"
+        echo -e "${CYAN}║${NC}                                                          ${CYAN}║${NC}"
+        echo -e "${CYAN}╚════════════════════════════════════════════════════════════╝${NC}"
+        echo ""
+        
+        # Fake Loading
+        echo -ne "${YELLOW}[*] Generating Secure Password... ${NC}"
+        fake_loading
+        
+        # Generate Password
+        PASSWORD=$(generate_num_pass)
+        
+        # Green Box with Yellow Password
+        echo ""
+        echo -e "${GREEN}╔════════════════════════════════════════════════════════════╗${NC}"
+        echo -e "${GREEN}║${NC}                                                          ${GREEN}║${NC}"
+        echo -e "${GREEN}║${NC}              ${YELLOW}🔑 YOUR PASSWORD: ${PASSWORD}${NC}                    ${GREEN}║${NC}"
+        echo -e "${GREEN}║${NC}                                                          ${GREEN}║${NC}"
+        echo -e "${GREEN}╚════════════════════════════════════════════════════════════╝${NC}"
+        echo ""
+        
+        # Options
+        echo -e "${CYAN}╔════════════════════════════════════════════════════════════╗${NC}"
+        echo -e "${CYAN}║${NC}                                                          ${CYAN}║${NC}"
+        echo -e "${CYAN}║${NC}              ${WHITE}[1] Create New Password${NC}                         ${CYAN}║${NC}"
+        echo -e "${CYAN}║${NC}              ${WHITE}[2] Press Ctrl+C to Exit${NC}                       ${CYAN}║${NC}"
+        echo -e "${CYAN}║${NC}                                                          ${CYAN}║${NC}"
+        echo -e "${CYAN}╚════════════════════════════════════════════════════════════╝${NC}"
+        echo ""
+        
+        # Wait for user to press 1
+        read -p "Press 1 for new password: " choice
+        
+        if [[ $choice == "1" ]]; then
+            continue
+        else
+            echo -e "${RED}[!] Invalid. Exiting...${NC}"
+            sleep 1
+            exit 0
+        fi
+    done
+}
+
+# Run the tool
+main

